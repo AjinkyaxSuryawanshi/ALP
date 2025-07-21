@@ -1,0 +1,99 @@
+DATA SEGMENT
+MSG1 Db 10,13, "ENTER NO :-$"
+MSG2 Db 10,13, "HIGHEST NO. IS :-$"
+MSG3 Db 10,13, "  $"
+NO Db 05 DUP(0)
+n db 05h
+c db 05h
+data ends
+
+code segment
+assume cs:code, ds:data
+start:
+mov ax,data
+mov ds,ax
+
+mov si,00h
+up0:
+lea dx,msg1
+mov ah, 09h
+int 21h
+call take
+mov [no+si],bl
+inc si
+dec [n]
+jnz up0
+
+lea dx,msg3
+mov ah,09h
+int 21h
+
+lea dx,msg2
+mov ah,09h
+int 21h
+
+mov si,00h
+mov al,[no+si]
+up1: inc si
+mov bl,[no+si]
+cmp al,bl
+jnc down4
+mov al,bl
+down4: dec [c]
+jnz up1
+
+mov bl,al
+call display
+
+mov ah,4ch
+int 21h
+
+take proc near
+mov ah,01h
+int 21h
+cmp al,39h
+jbe down0
+sub al,07h
+down0: sub al,30h
+mov cl,04h
+rol al,cl
+mov bl,al
+
+mov ah,01h
+int 21h
+cmp al,39h
+jbe down1
+sub al,07h
+down1: sub al,30h
+add bl,al
+ret
+take endp
+
+display proc near
+mov ch,bl
+and bl,0f0h
+mov cl,04h
+rol bl,cl
+cmp bl,09h
+jbe down2
+add bl,07h
+down2: add bl,30h
+mov dl,bl
+mov ah,02h
+int 21h
+
+mov bl,ch
+and bl,0fh
+cmp bl,09h
+jbe down3
+add bl,07h
+down3: add bl,30h
+
+mov dl,bl
+mov ah,02h
+int 21h
+ret
+display endp
+
+code ends
+end start
